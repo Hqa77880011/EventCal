@@ -1,0 +1,30 @@
+{
+  "seed": 17,
+  "device": "cpu",
+  "epochs": 100,
+  "patience": 15,
+  "batch_size": 32,
+  "learning_rate": 0.001,
+  "weight_decay": 0.0001,
+  "input_dim": 3072,
+  "hidden": 128,
+  "operator": [
+    [
+      1,
+      1,
+      0,
+      0
+    ],
+    [
+      0,
+      0,
+      1,
+      1
+    ]
+  ],
+  "delta": 0.1,
+  "width_threshold": 0.1,
+  "certainty_fraction": 0.5,
+  "identification_tolerance": 0.000001
+}
+
