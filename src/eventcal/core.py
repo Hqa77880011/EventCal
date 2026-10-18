@@ -84,7 +84,8 @@ def predict(model, batch, cfg, calibration=None):
     temperature = (
         (calibration or {}).get("temperature", 1.0) if model.method == "temperature_point" else 1.0
     )
-    r = (logits / temperature).softmax(-1)
+    logits = logits / temperature
+    r = logits.softmax(-1)
     bounds, structural, residuals = [], [], []
     A = np.asarray(cfg["operator"])
     radius = (
@@ -118,7 +119,24 @@ def metrics(prediction, data, cfg):
     report = prediction["bounds"]
     width = structural[:, 1] - structural[:, 0]
     reported = report[:, 1] - report[:, 0]
+    logits = np.asarray(prediction["logits"], dtype=float)
+    probability = np.exp(logits - logits.max(axis=-1, keepdims=True))
+    probability /= probability.sum(axis=-1, keepdims=True)
+    labels = np.asarray(data["y"], dtype=int)
+    confidence = probability.max(axis=-1)
+    correct = probability.argmax(axis=-1) == labels
+    ece = 0.0
+    edges = np.linspace(0, 1, cfg.get("calibration_bins", 15) + 1)
+    for low, high in zip(edges[:-1], edges[1:]):
+        selected = (confidence > low) & (confidence <= high)
+        if selected.any():
+            ece += selected.mean() * abs(correct[selected].mean() - confidence[selected].mean())
     result = {
+        "observable_ece": float(ece),
+        "observable_accuracy": float(correct.mean()),
+        "observable_nll": float(
+            -np.log(probability[np.arange(len(labels)), labels].clip(1e-12)).mean()
+        ),
         "mean_structural_width": float(width.mean()),
         "mean_reported_width": float(reported.mean()),
         "false_certainty_rate": float(

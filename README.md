@@ -54,7 +54,7 @@ python -m eventcal plot --inputs runs/main/eventcal results/eventcal --output fi
 
 `model.pt` contains model parameters, configuration and method identity. `history.jsonl` contains measured training/validation loss and epoch time. Evaluation writes `predictions.npz` and `metrics.json`. Plotting creates loss curves and metric comparisons from supplied run directories.
 
-Structural/reported width, point fraction, false certainty, excess width, optional event/identified-set coverage and per-query timing.
+Observable-label ECE, accuracy and NLL; structural/reported width, point fraction, false certainty, excess width, optional event/identified-set coverage and per-query timing. Observable ECE uses equal-width confidence bins (15 by default, controlled by `calibration_bins`); it scores coarse labels without assuming identified fine-event probabilities.
 
 ## Implementation conventions
 
